@@ -1,8 +1,12 @@
 name: Build and Push Multi-Arch Docker Image
 
 on:
-  push:
-    branches: [main]  # or your release branch
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to tag the image'
+        required: true
+        default: ''
 
 env:
   VERSION: v0.3.2
