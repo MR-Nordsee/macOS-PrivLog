@@ -1,0 +1,45 @@
+name: Build and Push Multi-Arch Docker Image
+
+on:
+  push:
+    branches: [main]  # or your release branch
+
+env:
+  VERSION: v0.3.2
+
+jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_PAT }}
+
+      - name: Extract Git metadata
+        id: meta
+        run: |
+          echo "BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> $GITHUB_ENV
+          echo "VCS_REF=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Build and Push Multi-Arch Image
+        run: |
+          docker buildx build \
+            --build-arg VERSION=${{ env.VERSION }} \
+            --build-arg BUILD_DATE=${{ env.BUILD_DATE }} \
+            --build-arg VCS_REF=${{ env.VCS_REF }} \
+            --platform linux/amd64,linux/arm64 \
+            --provenance=false --sbom=false \
+            -t ghcr.io/mr-nordsee/macos-privlog:latest \
+            -t ghcr.io/mr-nordsee/macos-privlog:${{ env.VERSION }} \
+            --push \
+            -f Dockerfile .
