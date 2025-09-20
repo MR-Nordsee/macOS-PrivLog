@@ -1,0 +1,2 @@
+5 0 * * * /app/db-backup.sh >> /dev/null
+10 0 * * * /app/db-cleanup.sh >> /dev/null

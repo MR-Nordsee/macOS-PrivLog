@@ -1,0 +1,13 @@
+.DS_Store
+api/*
+requests.log
+API-Test.log
+export.csv
+data.db
+Logs/*.log
+database-cleanup.log
+logfile-cleanup.log
+backup/*.db
+backup.log
+__pycache__
+helper-scripts/*.tar

@@ -1,0 +1,40 @@
+services:
+  swag:
+    image: lscr.io/linuxserver/swag:latest
+    container_name: swag
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+      - URL=webhook.dummy.de
+      - VALIDATION=http
+      - STAGING=true #for testing set to true
+      - SWAG_AUTORELOAD=true
+    volumes:
+      - /srv/proxy/config:/config
+    ports:
+      - 443:443
+      - 80:80
+    restart: unless-stopped
+  privileges-server:
+    image: macOS-PrivLog/webhook:v0.2.0-arm64
+    container_name: webhook
+    volumes:
+      - /srv/proxy/priv/Data:/app/Data
+      - /srv/proxy/priv/Logs:/app/Logs
+      - /srv/proxy/priv/backup:/app/backup
+    ports:
+      - 172.17.0.1:8080:8080
+    restart: unless-stopped
+    environment:
+      API_KEYS: |
+        U3BvbmdlQm9iU3F1YXJlUGFudHM=:AdminToken
+      BACKUP_RETENTION_DAYS: 20 #Optional
+      DATABASE_RETENTION_DAYS: 30 #Optional
+      LOG_LEVEL: DEBUG #Optional
+      LOGFILE_RETENTION_DAYS: 7 #Optional
+      DB_BACKUP_CRONJOB: "10 0 * * *" #Optional
+      HEALTH_OUTPUT_DISKSPACE: True #Optional
+      

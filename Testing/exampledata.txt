@@ -1,0 +1,65 @@
+{
+  "admin": false,
+  "custom_data": {
+    "serial": "$SERIALNUMBER"
+  },
+  "delayed": false,
+  "event": "corp.sap.privileges.revoked",
+  "expires": "",
+  "machine": "16DF8241-7E86-5A4F-8C0F-C49FAA3E7B15",
+  "reason": "requested by user",
+  "timestamp": "2025-07-04T17:04:19Z",
+  "user": "User1"
+}
+{
+  "admin": true,
+  "custom_data": {
+    "serial": "$SERIALNUMBER"
+  },
+  "delayed": true,
+  "event": "corp.sap.privileges.granted",
+  "expires": "2025-07-04T17:24:31Z",
+  "machine": "16DF8241-7E86-5A4F-8C0F-C49FAA3E7B15",
+  "reason": "Software",
+  "timestamp": "2025-07-04T17:04:31Z",
+  "user": "User1"
+}
+{
+  "admin": false,
+  "custom_data": {
+    "serial": "$SERIALNUMBER"
+  },
+  "delayed": true,
+  "event": "corp.sap.privileges.revoked",
+  "expires": "",
+  "machine": "16DF8241-7E86-5A4F-8C0F-C49FAA3E7B15",
+  "reason": "requested by user",
+  "timestamp": "2025-07-04T17:04:37Z",
+  "user": "User1"
+}
+{
+  "admin": true,
+  "custom_data": {
+    "serial": "$SERIALNUMBER"
+  },
+  "delayed": true,
+  "event": "corp.sap.privileges.granted",
+  "expires": "2025-07-04T17:24:42Z",
+  "machine": "16DF8241-7E86-5A4F-8C0F-C49FAA3E7B15",
+  "reason": "Delete Device",
+  "timestamp": "2025-07-04T17:04:42Z",
+  "user": "User1"
+}
+{
+  "admin": false,
+  "custom_data": {
+    "serial": "$SERIALNUMBER"
+  },
+  "delayed": true,
+  "event": "corp.sap.privileges.revoked",
+  "expires": "",
+  "machine": "16DF8241-7E86-5A4F-8C0F-C49FAA3E7B15",
+  "reason": "requested by user",
+  "timestamp": "2025-07-04T17:04:47Z",
+  "user": "User1"
+}
