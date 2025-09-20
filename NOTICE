@@ -1,0 +1,22 @@
+this project is unter MIT Licence see LICENCE file.
+
+Used libaries, binaries and references:
+fastapi: MIT Licence (https://github.com/fastapi/fastapi/blob/master/LICENSE)
+pydantic: MIT Licence (https://github.com/pydantic/pydantic/blob/main/LICENSE)
+pydantic-core: MIT Licence(https://github.com/pydantic/pydantic-core/blob/main/LICENSE)
+aiosqlite: MIT Licence (https://github.com/omnilib/aiosqlite/blob/main/LICENSE)
+supercronic: MIT Licence (https://github.com/aptible/supercronic/blob/master/LICENSE.md)
+annotated-types: MIT Licence (https://github.com/annotated-types/annotated-types/blob/main/LICENSE)
+anyio: MIT Licence (https://github.com/agronholm/anyio/blob/master/LICENSE)
+h11: MIT Licence (https://github.com/python-hyper/h11/blob/master/LICENSE.txt)
+typing-inspection: MIT Licence (https://github.com/pydantic/typing-inspection/blob/main/LICENSE)
+typing_extentions: MIT Licence (https://github.com/python/typing_extensions/blob/main/LICENSE)
+sniffio: MIT Licence and Apache 2.0 (https://github.com/python-trio/sniffio/blob/master/LICENSE) see NOTICE-sniffio
+idna: BSD 3-Clause (https://github.com/kjd/idna/blob/master/LICENSE.md) see NOTICE-idna
+click: BSD 3-Clause (https://github.com/pallets/click/blob/main/LICENSE.txt) see NOTICE-click
+uvicorn: BSD 3-Clause (https://github.com/Kludex/uvicorn/blob/main/LICENSE.md) see NOTICE-uvicorn
+starlette: BSD 3-Clause (https://github.com/Kludex/starlette/blob/main/LICENSE.md) see NOTICE-starlette
+supervisor: Custom BSD-Style (https://github.com/Supervisor/supervisor/blob/main/LICENSES.txt) see NOTICE-supervisor
+python3: PSF License Version 2 (https://docs.python.org/3/license.html#python-software-foundation-license-version-2)
+alpine Linux: MIT Licence (https://github.com/alpinelinux/docker-alpine/blob/master/LICENSE)
+macOS-enterprise-privileges: Apache 2.0 (https://github.com/SAP/macOS-enterprise-privileges/blob/main/LICENSE) see NOTICE-macOS-enterprise-privileges

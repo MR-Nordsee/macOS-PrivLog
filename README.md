@@ -89,19 +89,30 @@ The API key is defined in the compose file. A name is assigned to the key, which
   `/get-event-by-time?start=2025-09-01T00:00:00&end=2025-09-20T23:59:59`
 
 # Information and Sources
-For the Python code, I used Pylance in strict mode to avoid missing anything.  
+For the Python code, I used Pylance in strict mode to avoid missing anything.<br>
+**See NOTICE file for information on Licences.** <br>
+
 Here are the links to the projects, modules, and resources used:
 
-| Object                                                                                              | Source                                                                                                                                                                                                             |
-| --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Best way to open SQLite databases                                                                   | [https://sqlitebrowser.org/](https://sqlitebrowser.org/)                                                                                                                                                          |
-| Webhook code from macOS-enterprise-privileges                                                       | [https://github.com/SAP/macOS-enterprise-privileges/blob/main/source/PrivilegesAgent/Classes/MTWebhook.h](https://github.com/SAP/macOS-enterprise-privileges/blob/main/source/PrivilegesAgent/Classes/MTWebhook.h) |
-| API based on FastAPI                                                                                | [https://github.com/fastapi/fastapi](https://github.com/fastapi/fastapi)                                                                                                                                           |
-| Web server used: uvicorn (Copyright © 2017–present, Encode OSS Ltd.)                                | [https://github.com/encode/uvicorn](https://github.com/encode/uvicorn)                                                                                                                                             |
-| Field validation with Pydantic                                                                      | [https://github.com/pydantic/pydantic](https://github.com/pydantic/pydantic)                                                                                                                                       |
-| SQLite DB handled via aiosqlite                                                                     | [https://github.com/omnilib/aiosqlite](https://github.com/omnilib/aiosqlite)                                                                                                                                       |
-| Docker-compatible cronjob scheduler                                                                 | [https://github.com/aptible/supercronic](https://github.com/aptible/supercronic)                                                                                                                                   |
-| Task execution as non-root user                                                                     | [https://github.com/Supervisor/supervisor](https://github.com/Supervisor/supervisor)                                                                                                                               |
+| Object                                        | Source                                                                                                  |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Webhook code from macOS-enterprise-privileges | https://github.com/SAP/macOS-enterprise-privileges/blob/main/source/PrivilegesAgent/Classes/MTWebhook.h |
+| API based on FastAPI                          | https://github.com/fastapi/fastapi                                                                      |
+| Web server used: uvicorn                      | https://github.com/encode/uvicorn                                                                       |
+| Field validation with Pydantic                | https://github.com/pydantic/pydantic                                                                    |
+| SQLite DB handled via aiosqlite               | https://github.com/omnilib/aiosqlite                                                                    |
+| Docker-compatible cronjob scheduler           | https://github.com/aptible/supercronic                                                                  |
+| Task execution as non-root user: Supervisor   | https://github.com/Supervisor/supervisor                                                                |
+
+This project uses [uvicorn](https://github.com/Kludex/uvicorn), licensed under a BSD 3-Clause license.
+See Licences/NOTICE-uvicorn file for details.
+
+This project uses [starlette](https://github.com/Kludex/starlette), licensed under a BSD 3-Clause license.
+See Licences/NOTICE-uvicorn file for details.
+
+This project uses [supervisor](https://github.com/Supervisor/supervisor), which is licensed under a BSD-style license.
+See Licences/NOTICE-supervisor for details.
+
 
 # Database
 The SQLite database `data.db` contains a table named `priv_data` where the fields from the webhook are stored.
