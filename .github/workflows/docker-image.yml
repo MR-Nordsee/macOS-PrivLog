@@ -7,9 +7,14 @@ on:
         description: 'Version to tag the image'
         required: true
         default: ''
+      tag_latest:
+        description: 'Also tag image as latest?'
+        required: true
+        type: boolean
+        default: false
 
 env:
-  VERSION: v0.3.2
+  IMAGE_NAME: ghcr.io/mr-nordsee/macos-privlog
 
 jobs:
   docker-build:
@@ -37,13 +42,17 @@ jobs:
 
       - name: Build and Push Multi-Arch Image
         run: |
+          TAGS="-t ${{ env.IMAGE_NAME }}:${{ env.VERSION }}"
+          if [ "${{ github.event.inputs.tag_latest }}" = "true" ]; then
+            TAGS="$TAGS -t ${{ env.IMAGE_NAME }}:latest"
+          fi
+
           docker buildx build \
             --build-arg VERSION=${{ env.VERSION }} \
             --build-arg BUILD_DATE=${{ env.BUILD_DATE }} \
             --build-arg VCS_REF=${{ env.VCS_REF }} \
             --platform linux/amd64,linux/arm64 \
             --provenance=false --sbom=false \
-            -t ghcr.io/mr-nordsee/macos-privlog:latest \
-            -t ghcr.io/mr-nordsee/macos-privlog:${{ env.VERSION }} \
+            $TAGS \
             --push \
             -f Dockerfile .
