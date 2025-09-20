@@ -20,3 +20,6 @@ supervisor: Custom BSD-Style (https://github.com/Supervisor/supervisor/blob/main
 python3: PSF License Version 2 (https://docs.python.org/3/license.html#python-software-foundation-license-version-2)
 alpine Linux: MIT Licence (https://github.com/alpinelinux/docker-alpine/blob/master/LICENSE)
 macOS-enterprise-privileges: Apache 2.0 (https://github.com/SAP/macOS-enterprise-privileges/blob/main/LICENSE) see NOTICE-macOS-enterprise-privileges
+
+This includes only directly used projects, libaries and binaries.
+Used projects, libaries and binaries may include dependencies that have of other licences.
