@@ -1,0 +1,35 @@
+name: Cleanup Untagged GHCR Images
+
+on:
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: macos-privlog
+  GHCR_REPO: mr-nordsee/macos-privlog
+
+jobs:
+  cleanup-untagged:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Delete untagged GHCR image versions
+        env:
+          GH_TOKEN: ${{ secrets.GHCR_PAT }}
+        run: |
+          echo "Fetching untagged versions of ${{ env.IMAGE_NAME }}..."
+
+          VERSIONS=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/users/${{ github.repository_owner }}/packages/container/${{ env.IMAGE_NAME }}/versions \
+            | jq -r '.[] | select(.metadata.container.tags | length == 0) | .id')
+
+          if [ -z "$VERSIONS" ]; then
+            echo "No untagged versions found."
+            exit 0
+          fi
+
+          for VERSION_ID in $VERSIONS; do
+            echo "Deleting untagged version ID: $VERSION_ID"
+            curl -X DELETE -H "Authorization: Bearer $GH_TOKEN" \
+              https://api.github.com/users/${{ github.repository_owner }}/packages/container/${{ env.IMAGE_NAME }}/versions/$VERSION_ID
+          done
+          echo "Cleanup completed."
