@@ -28,6 +28,7 @@ The goal is to provide a lightweight server that can support moderately large en
    - **By default, staging SSL certificates are used.** To obtain real certificates, set the `Staging` variable to false in the compose.yaml for SWAG
    - The server should now respond to POST requests at https://SERVER/privileges
    - Example data is available in `exampledata.txt`, or use the `Test-api.ps1` script
+   - If you need to look inside the Container use `docker exec -it webhook /bin/bash`
 
 ## Update
 To update, follow these steps:
