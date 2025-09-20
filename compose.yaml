@@ -19,7 +19,7 @@ services:
       - 80:80
     restart: unless-stopped
   privileges-server:
-    image: macOS-PrivLog/webhook:v0.2.0-arm64
+    image: ghcr.io/mr-nordsee/macos-privlog:latest
     container_name: webhook
     volumes:
       - /srv/proxy/priv/Data:/app/Data

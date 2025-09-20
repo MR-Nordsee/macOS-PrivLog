@@ -32,7 +32,7 @@ ARG VCS_REF
 ARG BUILD_DATE
 
 # Set OCI-compliant labels (https://github.com/opencontainers/image-spec/blob/main/annotations.md)
-LABEL org.opencontainers.image.title="macOS-PrivLog/webhook" \
+LABEL org.opencontainers.image.title="macOS-Privileges-Webhook-Server" \
       org.opencontainers.image.description="FastAPI backend for macos-enterpise-privileges webhooks" \
       org.opencontainers.image.version="${VERSION}" \
       org.opencontainers.image.created="${BUILD_DATE}" \

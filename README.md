@@ -32,14 +32,8 @@ The goal is to provide a lightweight server that can support moderately large en
 ## Update
 To update, follow these steps:
 1. Import the latest version of the container  
-   `docker import -i privileges-server_amd64.tar`
-2. Update the *compose.yaml*
-    ```yaml
-    ...
-    image: macOS-PrivLog/webhook:v0.2.0-arm64
-    ...
-    ```
-3. Restart the service  
+   `docker compose pull`
+2. Restart the service  
    `docker compose up -d`
 
 ## Customization
