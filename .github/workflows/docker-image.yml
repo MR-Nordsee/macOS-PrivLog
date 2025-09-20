@@ -39,6 +39,7 @@ jobs:
         run: |
           echo "BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> $GITHUB_ENV
           echo "VCS_REF=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
 
       - name: Build and Push Multi-Arch Image
         run: |
