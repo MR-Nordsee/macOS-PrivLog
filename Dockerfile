@@ -38,7 +38,8 @@ LABEL org.opencontainers.image.title="macOS-Privileges-Webhook-Server" \
       org.opencontainers.image.created="${BUILD_DATE}" \
       org.opencontainers.image.revision="${VCS_REF}" \
       org.opencontainers.image.authors="MR-Nordsee" \
-      org.opencontainers.image.source="https://github.com/MR-Nordsee/macOS-PrivLog"
+      org.opencontainers.image.source="https://github.com/MR-Nordsee/macOS-PrivLog" \
+      org.opencontainers.image.licenses="MIT, BSD-3-Clause, Apache-2.0, PSF-2.0"
 
 # Prevents Python from writing pyc files.
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -72,6 +73,8 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # Create the directory and change ownership
 RUN mkdir -p /app/Logs && mkdir -p /app/backup && mkdir -p /app/Data
+
+COPY Licences/* /app/licences/
 
 COPY cronjobs /app
 COPY api_server.py /app
