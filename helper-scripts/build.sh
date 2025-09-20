@@ -1,6 +1,6 @@
 #!/bin/bash
 # Install docker Desktop and buildx first (tested this on macOS only)
-VERSION="v0.3.2"
+VERSION="v1.0.0"
 BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 VCS_REF=$(git rev-parse --short HEAD)
 
@@ -11,11 +11,22 @@ docker-buildx build --build-arg VERSION=${VERSION} \
                     --build-arg VCS_REF=${VCS_REF} \
                     --platform linux/amd64,linux/arm64 \
                     --provenance=false --sbom=false \
-                    -t ghcr.io/mr-nordsee/macos-privlog:latest \
-                    -t ghcr.io/mr-nordsee/macos-privlog:${VERSION} \
-                    --push \
+                    -t privileges-server:local-arm64 \
+                    -t privileges-server:${VERSION}-local-arm64 \
+                    --load \
                     --file ../Dockerfile \
                     ../
 
-#docker save macOS-PrivLog/webhook:${VERSION}-amd64 -o privileges-server_${VERSION}_amd64.tar
-#docker save macOS-PrivLog/webhook:${VERSION}-arm64 -o privileges-server_${VERSION}_arm64.tar
+docker-buildx build --build-arg VERSION=${VERSION} \
+                    --build-arg BUILD_DATE=${BUILD_DATE} \
+                    --build-arg VCS_REF=${VCS_REF} \
+                    --platform linux/amd64 \
+                    --provenance=false --sbom=false \
+                    -t privileges-server:local-amd64 \
+                    -t privileges-server:${VERSION}-amd64 \
+                    --load \
+                    --file ../Dockerfile \
+                    ../
+
+docker save privileges-server:local-arm64 -o privileges-server_${VERSION}_arm64.tar
+docker save privileges-server:local-amd64 -o privileges-server_${VERSION}_amd64.tar

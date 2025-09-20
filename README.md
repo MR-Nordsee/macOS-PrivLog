@@ -250,8 +250,9 @@ async with aiosqlite.connect("data.db") as db:
 
 
 ## Build New Container
-After modifying the scripts, the container must be rebuilt.  
+After modifying the scripts, the container must be rebuilt if you want to use them locally.
 The `build.sh` script in the `helper-scripts` folder builds and exports the containers.
+Feel free to make a pull requst for integration.
 
 # File Description
 To avoid forgetting what each file is for—and to help everyone quickly understand what belongs where—here are a few notes on what’s included:
