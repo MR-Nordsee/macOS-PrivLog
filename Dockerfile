@@ -74,6 +74,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 # Create the directory and change ownership
 RUN mkdir -p /app/Logs && mkdir -p /app/backup && mkdir -p /app/Data
 
+COPY NOTICE /app/licences/
 COPY Licences/* /app/licences/
 
 COPY cronjobs /app
