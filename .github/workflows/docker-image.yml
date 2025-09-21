@@ -1,4 +1,7 @@
 name: Build and Push Multi-Arch Docker Image
+permissions:
+  contents: read
+  packages: write
 
 on:
   workflow_dispatch:
