@@ -15,6 +15,11 @@ on:
         required: true
         type: boolean
         default: false
+      tag_testing:
+        description: 'Tag image as testing?'
+        required: true
+        type: boolean
+        default: true
 
 env:
   IMAGE_NAME: ghcr.io/mr-nordsee/macos-privlog
@@ -35,26 +40,28 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_PAT }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract Git metadata
         id: meta
         run: |
           echo "BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> $GITHUB_ENV
           echo "VCS_REF=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-          echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
 
       - name: Build and Push Multi-Arch Image
         run: |
-          TAGS="-t ${{ env.IMAGE_NAME }}:${{ env.VERSION }}"
+          TAGS="-t ${{ env.IMAGE_NAME }}:${{ github.event.inputs.version }}"
           if [ "${{ github.event.inputs.tag_latest }}" = "true" ]; then
             TAGS="$TAGS -t ${{ env.IMAGE_NAME }}:latest"
           fi
+          if [ "${{ github.event.inputs.tag_testing }}" = "true" ]; then
+            TAGS="$TAGS -t ${{ env.IMAGE_NAME }}:testing"
+          fi
 
           docker buildx build \
-            --build-arg VERSION=${{ env.VERSION }} \
-            --build-arg BUILD_DATE=${{ env.BUILD_DATE }} \
-            --build-arg VCS_REF=${{ env.VCS_REF }} \
+            --build-arg VERSION=${{ github.event.inputs.version }} \
+            --build-arg BUILD_DATE=$BUILD_DATE \
+            --build-arg VCS_REF=$VCS_REF \
             --platform linux/amd64,linux/arm64 \
             --provenance=false --sbom=false \
             $TAGS \
