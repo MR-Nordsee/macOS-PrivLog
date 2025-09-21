@@ -12,23 +12,23 @@ The goal is to provide a lightweight server that can support moderately large en
 - Internet access (to download the SWAG container)
 
 ## Quick Start
-1. Import Docker container (arm64 or amd64)  
-   `docker import -i privileges-server_amd64.tar`
-2. Adjust the docker compose.yaml
-   - Set the SWAG URL
+1. Adjust the docker compose.yaml
+   - Set the SWAG URL to your DNS Name
    - Adjust the image name for macOS-PrivLog/webhook to arm64 or amd64
-3. Create the container  
+   - **Remove or provide new API values in API_KEYS**
+2. Create the container  
    `docker compose up -d`
-4. Adjust SWAG config
-   - Modify the `server_name` in the nginx-default.conf from this repo
+3. Adjust SWAG config
+   - Set the `server_name` in the nginx-default.conf from this repo (line 14) to your DNS Name
    - Replace the SWAG config at */config/nginx/site-confs/default* with the one from this repo
-5. Test and Final Steps
+4. Test and Final Steps
    - Restart containers if needed to reload configs
    - Check logs and errors using `docker logs CONTAINER`
    - **By default, staging SSL certificates are used.** To obtain real certificates, set the `Staging` variable to false in the compose.yaml for SWAG
    - The server should now respond to POST requests at https://SERVER/privileges
    - Example data is available in `exampledata.txt`, or use the `Test-api.ps1` script
    - If you need to look inside the Container use `docker exec -it webhook /bin/bash`
+   - Set the Log Level to INFO for later use
 
 ## Update
 To update, follow these steps:
@@ -78,8 +78,8 @@ I use the device's serial number as CustomData. Adjustments can be made as descr
 ```
 
 # Data Retrieval
-There are API endpoints available to retrieve data from the database.  
-Requests are authenticated using an API key in the `X-API-Key` header.  
+There are API endpoints available to retrieve data from the database.
+Requests are authenticated using an API key in the `X-API-Key` header.
 The API key is defined in the compose file. A name is assigned to the key, which is logged to track who accessed the data.
 
 - For all entries with a specific serial number:  
