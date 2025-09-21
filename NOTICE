@@ -1,4 +1,4 @@
-this project is unter MIT Licence see LICENCE file.
+This project is unter MIT Licence see LICENCE file.
 
 Used libaries, binaries and references:
 fastapi: MIT Licence (https://github.com/fastapi/fastapi/blob/master/LICENSE)
@@ -22,4 +22,4 @@ alpine Linux: MIT Licence (https://github.com/alpinelinux/docker-alpine/blob/mas
 macOS-enterprise-privileges: Apache 2.0 (https://github.com/SAP/macOS-enterprise-privileges/blob/main/LICENSE) see NOTICE-macOS-enterprise-privileges
 
 This includes only directly used projects, libaries and binaries.
-Used projects, libaries and binaries may include dependencies that have of other licences.
+Used projects, libaries and binaries may include dependencies that have other licences.
