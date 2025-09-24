@@ -26,7 +26,7 @@ RUN if [ ${TARGETARCH} = "arm64" ]; then \
     && mv "supercronic-linux-arm64" "supercronic" \
     ; fi
 
-FROM python:3.12-alpine AS base
+FROM python:3.13-alpine AS base
 ARG VERSION
 ARG VCS_REF
 ARG BUILD_DATE
