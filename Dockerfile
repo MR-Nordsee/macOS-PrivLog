@@ -13,15 +13,15 @@ RUN apk update && apk add curl
 
 # Download supercronic for jobs
 RUN if [ ${TARGETARCH} = "amd64" ]; then \
-    curl -fsSLO "https://github.com/aptible/supercronic/releases/download/v0.2.34/supercronic-linux-amd64" \
-    && echo "e8631edc1775000d119b70fd40339a7238eece14 supercronic-linux-amd64" | sha1sum -c - \
+    curl -fsSLO "https://github.com/aptible/supercronic/releases/download/v0.2.38/supercronic-linux-amd64" \
+    && echo "bc072eba2ae083849d5f86c6bd1f345f6ed902d0 supercronic-linux-amd64" | sha1sum -c - \
     && chmod +x "supercronic-linux-amd64" \
     && mv "supercronic-linux-amd64" "supercronic" \
     ; fi
 
 RUN if [ ${TARGETARCH} = "arm64" ]; then \
-    curl -fsSLO "https://github.com/aptible/supercronic/releases/download/v0.2.34/supercronic-linux-arm64" \
-    && echo "4ab6343b52bf9da592e8b4bb7ae6eb5a8e21b71e supercronic-linux-arm64" | sha1sum -c - \
+    curl -fsSLO "https://github.com/aptible/supercronic/releases/download/v0.2.38/supercronic-linux-arm64" \
+    && echo "37842646e4c95b193c469afae400966565c383d3 supercronic-linux-arm64" | sha1sum -c - \
     && chmod +x "supercronic-linux-arm64" \
     && mv "supercronic-linux-arm64" "supercronic" \
     ; fi
