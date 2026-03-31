@@ -11,7 +11,6 @@ anyio: MIT Licence (https://github.com/agronholm/anyio/blob/master/LICENSE)
 h11: MIT Licence (https://github.com/python-hyper/h11/blob/master/LICENSE.txt)
 typing-inspection: MIT Licence (https://github.com/pydantic/typing-inspection/blob/main/LICENSE)
 typing_extentions: MIT Licence (https://github.com/python/typing_extensions/blob/main/LICENSE)
-sniffio: MIT Licence and Apache 2.0 (https://github.com/python-trio/sniffio/blob/master/LICENSE) see NOTICE-sniffio
 idna: BSD 3-Clause (https://github.com/kjd/idna/blob/master/LICENSE.md) see NOTICE-idna
 click: BSD 3-Clause (https://github.com/pallets/click/blob/main/LICENSE.txt) see NOTICE-click
 uvicorn: BSD 3-Clause (https://github.com/Kludex/uvicorn/blob/main/LICENSE.md) see NOTICE-uvicorn
