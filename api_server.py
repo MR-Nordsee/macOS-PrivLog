@@ -8,6 +8,7 @@ from fastapi import FastAPI, Request, Response, Depends, HTTPException, Security
 from fastapi.security.api_key import APIKeyHeader
 from starlette.status import HTTP_403_FORBIDDEN
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware import Middleware
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 from contextlib import asynccontextmanager
 import aiosqlite
@@ -127,13 +128,12 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             )
             raise e  # Trigger the error again so that the client can see it.
 
-app = FastAPI(lifespan=lifespan)
+middleware = [
+    Middleware(ProxyHeadersMiddleware, trusted_hosts="*"), # Trust Nginx as a proxy and rewrite client ip
+    Middleware(LoggingMiddleware), # Middleware for request logging
+]
 
-# Trust Nginx as a proxy
-app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
-
-# Middleware for request logging
-app.add_middleware(LoggingMiddleware)
+app = FastAPI(lifespan=lifespan, middleware=middleware)
 
 
 # POST-Endpoint that needs to be set in configuration profile
