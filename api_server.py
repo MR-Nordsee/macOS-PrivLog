@@ -7,6 +7,7 @@ from datetime import datetime
 from fastapi import FastAPI, Request, Response, Depends, HTTPException, Security, Path, Query
 from fastapi.security.api_key import APIKeyHeader
 from starlette.status import HTTP_403_FORBIDDEN
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 from contextlib import asynccontextmanager
 import aiosqlite
 from pydantic import BaseModel
@@ -113,21 +114,15 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+# Trust Nginx as a proxy
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
 
 # Middleware for request logging
 @app.middleware("http")
 async def log_requests_and_errors(
     request: Request, call_next: Callable[[Request], Awaitable[Response]]
 ):
-    # Try to get real IP from X-Forwarded-For header
-    x_forwarded_for = request.headers.get("X-Forwarded-For")
-    if x_forwarded_for:
-        # May contain multiple IPs, take the first one
-        client_ip = x_forwarded_for.split(",")[0].strip()
-    else:
-        # Fallback to request.client ip
-        client_ip = getattr(request.client, "host", "unknown")
-
+    client_ip = getattr(request.client, "host", "unknown")
     method = request.method
     url = request.url.path
     logging.info(f"{method} {url} from {client_ip}")
