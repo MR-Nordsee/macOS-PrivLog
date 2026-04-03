@@ -17,6 +17,8 @@ services:
     ports:
       - 0.0.0.0:443:443
       - 0.0.0.0:80:80
+    networks:
+      - proxy
     restart: unless-stopped
   privileges-server:
     image: ghcr.io/mr-nordsee/macos-privlog:latest
@@ -25,8 +27,6 @@ services:
       - /srv/proxy/priv/Data:/app/Data
       - /srv/proxy/priv/Logs:/app/Logs
       - /srv/proxy/priv/backup:/app/backup
-    ports:
-      - 172.17.0.1:8080:8080
     restart: unless-stopped
     environment:
       API_KEYS: |
@@ -37,4 +37,9 @@ services:
       LOGFILE_RETENTION_DAYS: 7 #Optional
       DB_BACKUP_CRONJOB: "10 0 * * *" #Optional
       HEALTH_OUTPUT_DISKSPACE: True #Optional
-      
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    driver: bridge
