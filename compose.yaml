@@ -29,8 +29,7 @@ services:
       - /srv/proxy/priv/backup:/app/backup
     restart: unless-stopped
     environment:
-      API_KEYS: |
-        U3BvbmdlQm9iU3F1YXJlUGFudHM=:AdminToken
+      API_KEYS: /run/secrets/api_keys
       BACKUP_RETENTION_DAYS: 20 #Optional
       DATABASE_RETENTION_DAYS: 30 #Optional
       LOG_LEVEL: DEBUG #Optional
@@ -39,7 +38,13 @@ services:
       HEALTH_OUTPUT_DISKSPACE: True #Optional
     networks:
       - proxy
+    secrets:
+      - api_keys
 
 networks:
   proxy:
     driver: bridge
+
+secrets:
+  api_keys:
+    file: ./secrets/api_keys.txt
