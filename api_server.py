@@ -13,7 +13,6 @@ from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 from contextlib import asynccontextmanager
 import aiosqlite
 from pydantic import BaseModel
-from typing import Callable, Awaitable, Any, Dict
 from typing import Callable, Awaitable, Any, Dict, List
 
 # Create Logs directory if it doesn't exist
