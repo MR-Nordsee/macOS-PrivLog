@@ -13,7 +13,7 @@ from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 from contextlib import asynccontextmanager
 import aiosqlite
 from pydantic import BaseModel
-from typing import Callable, Awaitable, Any
+from typing import Callable, Awaitable, Any, Dict
 
 # Create Logs directory if it doesn't exist
 log_dir = "Logs"
@@ -72,10 +72,19 @@ class PrivData(BaseModel):
     user: str
 
 
-def load_api_keys():
-    raw = os.getenv("API_KEYS", "")
-    pairs = [line.strip() for line in raw.splitlines() if line.strip()]
-    return {key: name for key, name in (pair.split(":") for pair in pairs)}
+def load_api_keys() -> Dict[str, str]:
+    path = os.getenv("API_KEYS", "")
+    if not path:
+        return {}
+    try:
+        with open(path, 'r') as f:
+            pairs = [line.strip() for line in f.readlines() if line.strip()]
+        return {key: name for key, name in (pair.split(":") for pair in pairs)}
+    except FileNotFoundError:
+        return {}
+    except ValueError:
+        # Handle malformed lines
+        return {}
 
 API_KEYS = load_api_keys()
 
