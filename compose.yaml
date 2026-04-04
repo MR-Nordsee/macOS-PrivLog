@@ -24,27 +24,57 @@ services:
     image: ghcr.io/mr-nordsee/macos-privlog:latest
     container_name: webhook
     volumes:
-      - /srv/proxy/priv/Data:/app/Data
-      - /srv/proxy/priv/Logs:/app/Logs
-      - /srv/proxy/priv/backup:/app/backup
+      - /srv/priv/Logs:/app/Logs
+      - /srv/priv/backup:/app/backup
     restart: unless-stopped
+    depends_on:
+      - db
     environment:
-      API_KEYS: /run/secrets/api_keys
+      API_KEYS: /run/secrets/api_keys #Optional
       BACKUP_RETENTION_DAYS: 20 #Optional
       DATABASE_RETENTION_DAYS: 30 #Optional
       LOG_LEVEL: DEBUG #Optional
       LOGFILE_RETENTION_DAYS: 7 #Optional
       DB_BACKUP_CRONJOB: "10 0 * * *" #Optional
       HEALTH_OUTPUT_DISKSPACE: True #Optional
+      DB_HOST: privlog-db
+      DB_PORT: 5432
+      DB_NAME: PrivLog
+      DB_USER: postgres
+      DB_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets:
+      - postgres_password
+      - api_keys
     networks:
       - proxy
+      - backend
+  db:
+    image: postgres:18
+    container_name: privlog-db
+    restart: unless-stopped
+    # Never hardcode passwords; use secrets / env files instead
+    environment:
+      POSTGRES_DB: PrivLog
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
+    volumes:
+      # Persistent data
+      - /srv/priv/data/postgres:/var/lib/postgresql/data
     secrets:
-      - api_keys
+      - postgres_password
+    networks:
+      - backend
 
 networks:
+  backend:
+    driver: bridge
   proxy:
     driver: bridge
 
 secrets:
+  postgres_password:
+    file: /srv/priv/secrets/postgres_password.txt
   api_keys:
-    file: ./secrets/api_keys.txt
+    file: /srv/priv/secrets/api_keys.txt
