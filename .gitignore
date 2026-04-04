@@ -11,3 +11,4 @@ backup/*.db
 backup.log
 __pycache__
 helper-scripts/*.tar
+secrets/*
