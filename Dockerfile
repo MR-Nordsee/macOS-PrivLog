@@ -91,6 +91,9 @@ RUN chmod 555 /app/api_server.py /app/init.sh /app/db-backup.sh
 RUN apk update && apk add --no-cache supervisor
 RUN apk add --no-cache --upgrade bash
 
+# Install postgresql client for backup and cleanup scripts
+RUN apk add --no-cache --upgrade postgresql-client
+
 # Get supercronic from build image to base image
 COPY --from=builder supercronic /usr/local/bin/supercronic
 
