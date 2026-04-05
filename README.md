@@ -15,19 +15,23 @@ The goal is to provide a lightweight server that can support moderately large en
 1. Adjust the docker compose.yaml
    - Set the SWAG URL to your DNS Name
    - Adjust the image name for macOS-PrivLog/webhook to arm64 or amd64
-   - **Remove or provide new API values in API_KEYS**
-2. Create the container  
+   - Adjust Volume Path according to your configuration
+2. Provide New Secrets
+   - Create a secret file with a password for the postgresql DB User
+   - Create a secret file with API Tokens and name (Format "key:name")
+3. Create the container  
    `docker compose up -d`
-3. Adjust SWAG config
+4. Adjust SWAG config
    - Set the `server_name` in the nginx-default.conf from this repo (line 14) to your DNS Name
    - Replace the SWAG config at */config/nginx/site-confs/default* with the one from this repo
-4. Test and Final Steps
+5. Test and Final Steps
    - Restart containers if needed to reload configs
    - Check logs and errors using `docker logs CONTAINER`
    - **By default, staging SSL certificates are used.** To obtain real certificates, set the `Staging` variable to false in the compose.yaml for SWAG
    - The server should now respond to POST requests at https://SERVER/privileges
    - Example data is available in `exampledata.txt`, or use the `Test-api.ps1` script
    - If you need to look inside the Container use `docker exec -it webhook /bin/bash`
+   - If you need to look inside the Database container use `docker exec -it privlog-db psql -U postgres -h 127.0.0.1`
    - Set the Log Level to INFO for later use
 
 ## Update
@@ -44,15 +48,21 @@ For internal setups or custom SSL certificates, refer to the SWAG documentation:
 Several options can be configured via environment variables in the compose.yaml.  
 These values are optional. If not set, defaults will be used.
 
-| Variable                | Type                    | Description                                                                                                                                     | Default                                                              |
-| ----------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
-| BACKUP_RETENTION_DAYS   | int                    | Defines how many days backups of `data.db` are retained before deletion.                                                                        | 30 days                                                               |
-| DATABASE_RETENTION_DAYS | int                    | Defines how many days old entries in `data.db` are retained. The `db-cleanup.sh` script runs daily at 00:10.                                    | 90 days                                                               |
-| LOG_LEVEL               | String (DEBUG, INFO, WARNING) | Sets the log level for the FASTAPI script.                                                                                                      | INFO                                                                  |
-| LOGFILE_RETENTION_DAYS  | int                    | Defines how many days FASTAPI log files are retained before being overwritten. Backup and cleanup logs are not deleted!                         | 7 days                                                                |
-| DB_BACKUP_CRONJOB       | String (Cronjob)         | Allows custom scheduling for database backups.                                                                                                  | Daily at 00:05 (5 minutes before database cleanup)                   |
-| HEALTH_OUTPUT_DISKSPACE | Bool                    | Enables the `disk_free_gb` value in the Health API. See Monitoring.                                                                             | False                                                                 |
-| API_KEYS                | String (Multi)          | Defines API keys and their labels for accessing data via the API. Format: `KEY:NAME`                                                            | None                                                                  |
+| Variable | Type | Description | Default |
+| --- | --- | --- | --- |
+| BACKUP_RETENTION_DAYS | int | Defines how many days backups of the Database are kept before deletion. | 30 days |
+| DATABASE_RETENTION_DAYS | int | Defines for how many days old entries are kept in the Database. The `db-cleanup.sh` script runs daily at 00:10. | 90 days |
+| LOG_LEVEL | String (DEBUG, INFO, WARNING) | Sets the log level for the FASTAPI script. | INFO |
+| LOGFILE_RETENTION_DAYS | int | Defines how many days FASTAPI log files are retained before being overwritten. Backup and cleanup logs are not deleted! | 7 days |
+| DB_BACKUP_CRONJOB | String (Cronjob) | Allows custom scheduling for database backups. | Daily at 00:05 (5 minutes before database cleanup) |
+| HEALTH_OUTPUT_DISKSPACE | Bool | Enables the `disk_free_gb` value in the Health API. See Monitoring. | False |
+| API_KEYS | String (FilePath) | Defines the FilePath from where to read the API keys and their labels for accessing data via the API.  <br>Format per Line: `KEY:NAME` | None |
+| DB_HOST | String | If you use container Docker Networks set the name of the DB Container. In other cases set the external DB ip or hostname. | localhost |
+| DB_PORT | int | Database connection port. | 5432 |
+| DB_NAME | String | Name of the Database to use. Tables inside the Database will be created by the script. | postgres |
+| DB_USER | String | Database connection user. | postgres |
+| DB_PASSWORD_FILE | String (FilePath) | Defines the FilePath from where to read the Password for the Database Connection. | Empty String |
+| DB_SSL | Bool | Defines if the DB Connection should use SSL. Recommend if you use external DB connection. | False |
 
 # Configuration Profile
 Here is an example configuration for remote logging.  
@@ -101,7 +111,7 @@ Here are the links to the projects, modules, and resources used:
 | API based on FastAPI                          | https://github.com/fastapi/fastapi                                                                      |
 | Web server used: uvicorn                      | https://github.com/encode/uvicorn                                                                       |
 | Field validation with Pydantic                | https://github.com/pydantic/pydantic                                                                    |
-| SQLite DB handled via aiosqlite               | https://github.com/omnilib/aiosqlite                                                                    |
+| PostgreSQL DB Connection handled via asyncpg  | https://github.com/MagicStack/asyncpg                                                                    |
 | Docker-compatible cronjob scheduler           | https://github.com/aptible/supercronic                                                                  |
 | Task execution as non-root user: Supervisor   | https://github.com/Supervisor/supervisor                                                                |
 
@@ -116,7 +126,7 @@ See Licences/NOTICE-supervisor for details.
 
 
 # Database
-The SQLite database `data.db` contains a table named `priv_data` where the fields from the webhook are stored.
+The PostgreSQL database contains a table named `priv_data` where the fields from the webhook are stored.
 
 | Field         | Format             | Description                                                                 |
 |---------------|--------------------|------------------------------------------------------------------------------|
@@ -207,12 +217,12 @@ class PrivData(BaseModel):
     user: str
 ```
 
-## Adjusting `data.db` Structure
+## Adjusting `database` Structure
 To create the table, modify/add/remove the fields as needed:
 
 ```sql
 CREATE TABLE IF NOT EXISTS priv_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 admin BOOLEAN,
                 custom_serial TEXT,
                 delayed BOOLEAN,
@@ -221,7 +231,7 @@ CREATE TABLE IF NOT EXISTS priv_data (
                 machine TEXT,
                 reason TEXT,
                 timestamp TEXT,
-                user TEXT
+                username TEXT
 ```
 
 ## Adjust SQL Prepared Statement
@@ -229,13 +239,13 @@ Update/add/remove fields in the SQL statement.
 Then update/add/remove the corresponding values used in the query.
 
 ```python
-async with aiosqlite.connect("data.db") as db:
-        await db.execute("""
+await conn.execute(
+            """
             INSERT INTO priv_data (
                 admin, custom_serial, delayed, event, expires,
-                machine, reason, timestamp, user
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
+                machine, reason, timestamp, username
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        """,
             data.admin,
             data.custom_data.serial,
             data.delayed,
@@ -244,9 +254,8 @@ async with aiosqlite.connect("data.db") as db:
             data.machine,
             data.reason,
             data.timestamp,
-            data.user
-        ))
-        await db.commit()
+            data.user,
+        )
 ```
 
 
@@ -269,12 +278,6 @@ To avoid forgetting what each file is for—and to help everyone quickly underst
 
 - `db-cleanup.sh`  
   Deletes data from the current database that is older than X days. Uses the `timestamp` field. The number of days can be passed as an argument.
-
-- `export-serial.sh`  
-  Exports all entries with a specific serial number from the DB using the custom field `custom_serial`, and writes them to a CSV file.
-
-- `export-data.sh`  
-  Exports all entries from the database and writes them to a CSV file.
 
 - `log-cleanup.sh`  
   Deletes log files from the `Logs` subfolder that are older than X days. The number of days can be passed as an argument.
@@ -309,13 +312,23 @@ To avoid forgetting what each file is for—and to help everyone quickly underst
 - `requirements.txt`  
   Contains required versions and dependencies for the script. Used to set up the correct Python environment.
 
-- `data.db`  
-  SQLite database for storing all information.
-
 - `exampledata.txt`  
   A few example requests in JSON format, as sent by the client.
+
+- **DEPRECATED (old DB Format):** `data.db`  
+  SQLite database for storing all information.
+
+- **DEPRECATED (old DB Format):** `export-serial.sh`  
+  Exports all entries with a specific serial number from the DB using the custom field `custom_serial`, and writes them to a CSV file.
+
+- **DEPRECATED (old DB Format):** `export-data.sh`  
+  Exports all entries from the database and writes them to a CSV file.
 
 # Ideas & ToDos:
 - Setup for SWAG (replace default nginx config)
 - Define custom data via config file (may require table versioning)
 - Implement API tests using Bruno
+- Switch Database to PostgreSQL and include Container Setup for simple Setup
+- Separate Cronjobs to different Container
+- Add Client Authentication Option
+- With the above changes maybe include options to host multiple Servers with one Backend
