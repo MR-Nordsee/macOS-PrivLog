@@ -48,6 +48,16 @@ level_map = {
 logger.setLevel(level_map.get(log_level, logging.INFO))  # Default to INFO
 logger.addHandler(handler)
 
+def parse_bool(value: str | None, default: bool = False) -> bool:
+    if value is None:
+        return default
+    normalized = value.strip().lower()
+    if normalized in {"1", "true", "yes", "on"}:
+        return True
+    if normalized in {"0", "false", "no", "off"}:
+        return False
+    return default
+
 # PostgreSQL database configuration from environment variables
 def load_db_config() -> Dict[str, Any]:
     """Load PostgreSQL configuration from environment variables and password file."""
@@ -56,7 +66,7 @@ def load_db_config() -> Dict[str, Any]:
         "port": int(os.getenv("DB_PORT", "5432")),
         "database": os.getenv("DB_NAME", "postgres"),
         "user": os.getenv("DB_USER", "postgres"),
-        "ssl": os.getenv("DB_SSL", False),
+        "ssl": parse_bool(os.getenv("DB_SSL", "false"), default=False),
     }
     
     # Load password from file
