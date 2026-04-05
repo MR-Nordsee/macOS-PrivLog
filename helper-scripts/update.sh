@@ -12,7 +12,8 @@ pip list --outdated
 # Upgrade the basic modules
 pip install --upgrade pydantic
 pip install --upgrade fastapi
-pip install --upgrade aiosqlite
+pip install --upgrade asyncpg
+pip install --upgrade asyncpg-stubs
 pip install --upgrade uvicorn
 
 # Write the changes to the requirements. Please test before publish.
