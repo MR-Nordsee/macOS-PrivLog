@@ -56,6 +56,7 @@ def load_db_config() -> Dict[str, Any]:
         "port": int(os.getenv("DB_PORT", "5432")),
         "database": os.getenv("DB_NAME", "postgres"),
         "user": os.getenv("DB_USER", "postgres"),
+        "ssl": os.getenv("DB_SSL", False),
     }
     
     # Load password from file
