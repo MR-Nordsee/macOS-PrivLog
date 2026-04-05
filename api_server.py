@@ -48,8 +48,34 @@ level_map = {
 logger.setLevel(level_map.get(log_level, logging.INFO))  # Default to INFO
 logger.addHandler(handler)
 
-# Path for the sqlite db that stores the data
-db_path = "Data/data.db"
+# PostgreSQL database configuration from environment variables
+def load_db_config() -> Dict[str, Any]:
+    """Load PostgreSQL configuration from environment variables and password file."""
+    db_config: dict[str, str | int] = {
+        "host": os.getenv("DB_HOST", "localhost"),
+        "port": int(os.getenv("DB_PORT", "5432")),
+        "database": os.getenv("DB_NAME", "postgres"),
+        "user": os.getenv("DB_USER", "postgres"),
+    }
+    
+    # Load password from file
+    password_file = os.getenv("DB_PASSWORD_FILE")
+    if password_file and os.path.exists(password_file):
+        try:
+            with open(password_file, "r") as f:
+                db_config["password"] = f.read().strip()
+            logging.debug(f"Loaded database password from {password_file}")
+        except Exception as e:
+            logging.error(f"Failed to load password from {password_file}: {repr(e)}")
+            raise
+    else:
+        logging.warning("DB_PASSWORD_FILE not set or file does not exist, using empty password")
+        db_config["password"] = ""
+    
+    return db_config
+
+
+DB_CONFIG = load_db_config()
 
 
 # Data model configured in the client profile
