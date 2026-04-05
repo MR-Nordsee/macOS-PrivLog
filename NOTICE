@@ -3,8 +3,9 @@ This project is unter MIT Licence see LICENCE file.
 Used libaries, binaries and references:
 fastapi: MIT Licence (https://github.com/fastapi/fastapi/blob/master/LICENSE)
 pydantic: MIT Licence (https://github.com/pydantic/pydantic/blob/main/LICENSE)
-pydantic-core: MIT Licence(https://github.com/pydantic/pydantic-core/blob/main/LICENSE)
-aiosqlite: MIT Licence (https://github.com/omnilib/aiosqlite/blob/main/LICENSE)
+pydantic-core: MIT Licence (https://github.com/pydantic/pydantic-core/blob/main/LICENSE)
+asyncpg: Apache 2.0 (https://github.com/MagicStack/asyncpg/blob/master/LICENSE) see NOTICE-asyncpg
+asyncpg-stubs: BSD 3-Clause (https://github.com/bryanforbes/asyncpg-stubs/blob/master/LICENSE) see NOTICE-asyncpg-stubs
 supercronic: MIT Licence (https://github.com/aptible/supercronic/blob/master/LICENSE.md)
 annotated-types: MIT Licence (https://github.com/annotated-types/annotated-types/blob/main/LICENSE)
 anyio: MIT Licence (https://github.com/agronholm/anyio/blob/master/LICENSE)
