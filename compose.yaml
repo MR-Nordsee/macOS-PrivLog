@@ -42,6 +42,7 @@ services:
       DB_NAME: PrivLog
       DB_USER: postgres
       DB_PASSWORD_FILE: /run/secrets/postgres_password
+      DB_SSL: False #Optional, set to true if you have an SSL-enabled database
     secrets:
       - postgres_password
       - api_keys
