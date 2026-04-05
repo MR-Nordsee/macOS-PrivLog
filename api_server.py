@@ -3,6 +3,7 @@ from logging.handlers import TimedRotatingFileHandler
 import os
 import shutil
 import json
+import asyncpg
 from datetime import datetime
 from fastapi import FastAPI, Request, Response, Depends, HTTPException, Security, Path, Query
 from fastapi.security.api_key import APIKeyHeader
@@ -11,7 +12,6 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware import Middleware
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 from contextlib import asynccontextmanager
-import aiosqlite
 from pydantic import BaseModel
 from typing import Callable, Awaitable, Any, Dict, List
 
@@ -134,11 +134,16 @@ def get_api_key(api_key: str = Security(api_key_header)):
 # Datenbank initialisieren
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    async with aiosqlite.connect(db_path) as db:
-        await db.execute(
+    """Initialize database connection and create tables if needed."""
+    try:
+        conn = await asyncpg.connect(**DB_CONFIG)
+        logging.info(f"Connected to PostgreSQL database at {DB_CONFIG['host']}:{DB_CONFIG['port']}/{DB_CONFIG['database']}")
+        
+        # Create table if it doesn't exist
+        await conn.execute(
             """
             CREATE TABLE IF NOT EXISTS priv_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 admin BOOLEAN,
                 custom_serial TEXT,
                 delayed BOOLEAN,
@@ -147,11 +152,17 @@ async def lifespan(app: FastAPI):
                 machine TEXT,
                 reason TEXT,
                 timestamp TEXT,
-                user TEXT
+                username TEXT
             )
         """
         )
-        await db.commit()
+        logging.debug("Ensured priv_data table exists")
+        
+        await conn.close()
+    except Exception as e:
+        logging.error(f"Failed to initialize database: {repr(e)}")
+        raise
+    
     yield  # App is running...
 
 class LoggingMiddleware(BaseHTTPMiddleware):
@@ -183,27 +194,28 @@ async def receive_data(data: PrivData) -> dict[str, Any]:
     logging.debug(f"Validated JSON: {data.model_dump()}")
     logging.debug(f"Received JSON: {repr(data)}")
 
-    async with aiosqlite.connect(db_path) as db:
-        await db.execute(
+    conn = await asyncpg.connect(**DB_CONFIG)
+    try:
+        await conn.execute(
             """
             INSERT INTO priv_data (
                 admin, custom_serial, delayed, event, expires,
-                machine, reason, timestamp, user
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                machine, reason, timestamp, username
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         """,
-            (
-                data.admin,
-                data.custom_data.serial,
-                data.delayed,
-                data.event,
-                data.expires,
-                data.machine,
-                data.reason,
-                data.timestamp,
-                data.user,
-            ),
+            data.admin,
+            data.custom_data.serial,
+            data.delayed,
+            data.event,
+            data.expires,
+            data.machine,
+            data.reason,
+            data.timestamp,
+            data.user,
         )
-        await db.commit()
+        logging.debug("Data inserted successfully")
+    finally:
+        await conn.close()
 
     return {"status": "success", "received": data}
 
@@ -214,15 +226,17 @@ async def health_check() -> dict[str, str]:
 
     # 1. Check database existence and query
     try:
-        async with aiosqlite.connect(db_path) as db:
-            async with db.execute("SELECT * FROM priv_data LIMIT 1") as cursor:
-                row = await cursor.fetchone()
-        status["database"] = "reachable"
-        if row:
-            status["database_sample"] = "found"
-        else:
-            status["database_sample"] = "empty"
-            status["status"] = "warning"
+        conn = await asyncpg.connect(**DB_CONFIG)
+        try:
+            row = await conn.fetchrow("SELECT * FROM priv_data LIMIT 1")
+            status["database"] = "reachable"
+            if row:
+                status["database_sample"] = "found"
+            else:
+                status["database_sample"] = "empty"
+                status["status"] = "warning"
+        finally:
+            await conn.close()
     except Exception as e:
         logging.error(f"Health check DB query error: {repr(e)}")
         status["database"] = "unreachable"
@@ -241,7 +255,7 @@ async def health_check() -> dict[str, str]:
 
     # 3. Check disk space
     try:
-        output_diskspace = str(os.getenv("HEALTH_OUTPUT_DISKSPACE", "False"))  # Default to 7 if not set
+        output_diskspace = str(os.getenv("HEALTH_OUTPUT_DISKSPACE", "False"))  # Default to False if not set
         _, _, free = shutil.disk_usage(log_dir)
         free_gb = free / (1024**3)
         if output_diskspace == "True":
@@ -262,37 +276,41 @@ async def health_check() -> dict[str, str]:
 @app.get("/get-event-by-serial/{serialnumber}")
 async def get_device(serialnumber: str = Path(..., pattern="^[a-zA-Z0-9-]+$"), user: str = Depends(get_api_key)):
     logging.info(f"Request Data from {user} for Serial {serialnumber}")
-    async with aiosqlite.connect(db_path) as db:
-        db.row_factory = aiosqlite.Row
-        query = "SELECT * FROM priv_data WHERE custom_serial = ?"
-        async with db.execute(query, (serialnumber,)) as cursor:
-            rows = await cursor.fetchall()
-            row_dicts = [dict(row) for row in rows]
-            logging.debug(f"Entries from DB {json.dumps(row_dicts, indent=2)}")
-            return row_dicts
+    conn = await asyncpg.connect(**DB_CONFIG)
+    try:
+        rows = await conn.fetch("SELECT * FROM priv_data WHERE custom_serial = $1", serialnumber)
+        row_dicts = [dict(row) for row in rows]
+        logging.debug(f"Entries from DB {json.dumps(row_dicts, indent=2, default=str)}")
+        return row_dicts
+    finally:
+        await conn.close()
         
 # Authenticated endpoint with username in URL
 @app.get("/get-event-by-user/{username}")
 async def get_user(username: str = Path(..., pattern="^[a-zA-Z0-9-]+$"), user: str = Depends(get_api_key)):
     logging.info(f"Request Data from {user} for user {username}")
-    async with aiosqlite.connect(db_path) as db:
-        db.row_factory = aiosqlite.Row
-        query = "SELECT * FROM priv_data WHERE user = ?"
-        async with db.execute(query, (username,)) as cursor:
-            rows = await cursor.fetchall()
-            row_dicts = [dict(row) for row in rows]
-            logging.debug(f"Entries from DB {json.dumps(row_dicts, indent=2)}")
-            return row_dicts
+    conn = await asyncpg.connect(**DB_CONFIG)
+    try:
+        rows = await conn.fetch("SELECT * FROM priv_data WHERE username = $1", username)
+        row_dicts = [dict(row) for row in rows]
+        logging.debug(f"Entries from DB {json.dumps(row_dicts, indent=2, default=str)}")
+        return row_dicts
+    finally:
+        await conn.close()
         
 # Authenticated endpoint with timeframe
 @app.get("/get-event-by-time")
 async def get_entires(start: datetime = Query(..., description="Start timestamp in ISO format"), end: datetime = Query(..., description="End timestamp in ISO format"), user: str = Depends(get_api_key)):
     logging.info(f"Request Data from {user} between {start} and {end}")
-    async with aiosqlite.connect(db_path) as db:
-        db.row_factory = aiosqlite.Row
-        query = "SELECT * FROM priv_data WHERE timestamp >= ? AND timestamp <= ?"
-        async with db.execute(query, (start.isoformat(), end.isoformat())) as cursor:
-            rows = await cursor.fetchall()
-            row_dicts = [dict(row) for row in rows]
-            logging.debug(f"Entries from DB {json.dumps(row_dicts, indent=2)}")
-            return row_dicts
+    conn = await asyncpg.connect(**DB_CONFIG)
+    try:
+        rows = await conn.fetch(
+            "SELECT * FROM priv_data WHERE timestamp >= $1 AND timestamp <= $2",
+            start.isoformat(),
+            end.isoformat()
+        )
+        row_dicts = [dict(row) for row in rows]
+        logging.debug(f"Entries from DB {json.dumps(row_dicts, indent=2, default=str)}")
+        return row_dicts
+    finally:
+        await conn.close()
