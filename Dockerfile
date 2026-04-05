@@ -85,7 +85,7 @@ COPY init.sh /app
 RUN chown -R ${PUID}:${PGID} /app
 
 RUN chmod -R 755 /app/Logs /app/backup /app/Data
-RUN chmod 555 /app/api_server.py /app/init.sh /app/db-backup.sh
+RUN chmod 555 /app/api_server.py /app/init.sh /app/db-backup.py /app/db-cleanup.py
 
 # Install supervisor & bash
 RUN apk update && apk add --no-cache supervisor
