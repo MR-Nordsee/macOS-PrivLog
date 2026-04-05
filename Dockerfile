@@ -79,8 +79,8 @@ COPY Licences/* /app/licences/
 
 COPY cronjobs /app
 COPY api_server.py /app
-COPY db-backup.sh /app
-COPY db-cleanup.sh /app
+COPY db-backup.py /app
+COPY db-cleanup.py /app
 COPY init.sh /app
 RUN chown -R ${PUID}:${PGID} /app
 
