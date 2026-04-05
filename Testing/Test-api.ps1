@@ -212,6 +212,7 @@ $payloadTemplate.reason = "(COUNT)"  # Placeholder to track each request number
 $Template = ($payloadTemplate | ConvertTo-Json -Depth 100)
 $headers = @{ "Content-Type" = "application/json;charset=utf-8" }
 $MassStatus = $true
+exit
 
 # 🚀 Launch 2,500 parallel POST requests with modified payloads
 1..2500 | Foreach-Object -ThrottleLimit 100 -Parallel {
