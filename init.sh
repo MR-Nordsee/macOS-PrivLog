@@ -17,11 +17,13 @@ is_valid_cron_timing() {
 if [ -n "$DB_BACKUP_CRONJOB" ]; then
     if is_valid_cron_timing "$DB_BACKUP_CRONJOB"; then
         echo "Valid cron timing found: $DB_BACKUP_CRONJOB"
+        # Escape special characters in CRON_COMMAND for sed
+        escaped_cron_command=$(printf '%s\n' "$CRON_COMMAND" | sed -e 's/[\/&]/\\&/g')
         # Replace the timing part of the line that contains the command
         if [[ "$OSTYPE" == "darwin"* ]]; then # For testing check for darwin OS
-            sed -i '' "s|^.* $CRON_COMMAND|$DB_BACKUP_CRONJOB $CRON_COMMAND|" "$CRON_FILE"
+            sed -i '' "s|^[0-9/\* ,:\-]*[[:space:]].*$escaped_cron_command|$DB_BACKUP_CRONJOB $CRON_COMMAND|" "$CRON_FILE"
         else
-            sed -i "s|^.* $CRON_COMMAND|$DB_BACKUP_CRONJOB $CRON_COMMAND|" "$CRON_FILE"
+            sed -i "s|^[0-9/\* ,:\-]*[[:space:]].*$escaped_cron_command|$DB_BACKUP_CRONJOB $CRON_COMMAND|" "$CRON_FILE"
         fi
         echo "Cronjob timing updated in $CRON_FILE"
     else
