@@ -77,7 +77,7 @@ def build_pg_dump_command(backup_file: Path, config: dict[str, str | int | bool]
         "--username",
         str(config["user"]),
         "--dbname",
-        str(config["dbname"]),
+        str(config["database"]),
         "--format",
         "custom",
         "--file",
