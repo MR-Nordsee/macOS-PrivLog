@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CRON_FILE="cronjobs"
+CRON_FILE="/app/cronjobs"
 CRON_COMMAND="/app/db-backup.sh >> /dev/null"
 
 # Validate cron timing format (basic check)
