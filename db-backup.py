@@ -76,12 +76,11 @@ def build_pg_dump_command(backup_file: Path, config: dict[str, str | int | bool]
         str(config["port"]),
         "--username",
         str(config["user"]),
-        "--dbname",
-        str(config["database"]),
         "--format",
         "custom",
         "--file",
         str(backup_file),
+        str(config["database"]),
     ]
 
 
