@@ -2,7 +2,7 @@ aiosqlite==0.22.1
 annotated-doc==0.0.4
 annotated-types==0.7.0
 anyio==4.13.0
-click==8.3.1
+click==8.3.3
 fastapi==0.135.2
 h11==0.16.0
 idna==3.11
