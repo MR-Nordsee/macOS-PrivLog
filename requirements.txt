@@ -6,7 +6,7 @@ click==8.3.1
 fastapi==0.135.2
 h11==0.16.0
 idna==3.11
-pydantic==2.12.5
+pydantic==2.13.3
 pydantic_core==2.41.5
 starlette==1.0.0
 typing-inspection==0.4.2
